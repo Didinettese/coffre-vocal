@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blue Monkey's Chest</title>
+  <style>
+    body {
+      background: #f4f1e8;
+      font-family: 'Georgia', serif;
+      color: #3c2f2f;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.2rem;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #7c6f64;
+      color: #fff;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+    }
+    #chest {
+      margin-top: 3rem;
+      font-size: 5rem;
+    }
+    #singeImage {
+      margin-top: 2rem;
+      max-width: 80%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+    }
+    #manualInput {
+      margin-top: 2rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blue Monkey's Chest</h1>
+  <p>Recite or write the magic formula to open the chest:</p>
+  <button onclick="startRecognition()">Speak the formula</button>
+
+  <div id="manualInput">
+    <input type="text" id="textInput" placeholder="Type the magic formula" style="padding: 0.5rem; font-size: 1rem;" />
+    <button onclick="checkTypedFormula()">Submit</button>
+  </div>
+
+  <div id="status">Waiting...</div>
+  <div id="chest">🔒</div>
+
+  <img id="singeImage" src="singe_bleu.png?v=3" alt="Blue Monkey" />
+
+  <audio autoplay loop>
+    <source src="blue_monkey_background.mp3?v=3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    const magicWords = ["light", "calm", "self", "sacred", "sombok"];
+    function normalize(input) {
+      return input.toLowerCase().trim().split(/\s+/);
+    }
+
+    function checkMagic(words) {
+      return magicWords.every((word, i) => words[i] === word);
+    }
+
+    function showSuccess() {
+      document.getElementById('status').textContent = "Correct formula! The chest opens!";
+      document.getElementById('chest').textContent = "🔓";
+      document.getElementById('singeImage').style.display = 'block';
+    }
+
+    function showFailure(spoken) {
+      document.getElementById('status').textContent = `You said: "${spoken}" → This is not the correct formula.`;
+      document.getElementById('chest').textContent = "🔒";
+      document.getElementById('singeImage').style.display = 'none';
+    }
+
+    function startRecognition() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        document.getElementById('status').textContent = "Listening...";
+      };
+
+      recognition.onresult = (event) => {
+        const spoken = event.results[0][0].transcript;
+        const words = normalize(spoken);
+        checkMagic(words) ? showSuccess() : showFailure(spoken);
+      };
+
+      recognition.onerror = (event) => {
+        document.getElementById('status').textContent = `Error: ${event.error}`;
+      };
+
+      recognition.start();
+    }
+
+    function checkTypedFormula() {
+      const typed = document.getElementById('textInput').value;
+      const words = normalize(typed);
+      checkMagic(words) ? showSuccess() : showFailure(typed);
+    }
+  </script>
+</body>
+</html>
