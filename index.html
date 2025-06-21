@@ -66,13 +66,14 @@
   <div id="chest">🔒</div>
   <img id="singeImage" src="singe_bleu.png" alt="Blue Monkey" />
   <script>
-    const magicWords = ["light", "calm", "self", "sacred", "somebook"];
+    const magicWords = ["light", "calm", "self", "sacred", "sombok"];
 
     function normalize(word) {
       word = word.toLowerCase();
-      if (["some", "sum", "son"].includes(word)) return "sombok";
-      if (word === "book") return "";
-      if (word === "somebook") return "sombok";
+      if (["some", "sum", "song"].includes(word)) return "sombok";
+      if (word === "book") return "sombok";
+      if (word === "some book") return "sombok";
+      if (word === "song book") return "sombok";
       return word;
     }
 
