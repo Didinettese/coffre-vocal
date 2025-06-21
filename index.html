@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coffre du Singe Bleu</title>
+  <title>The Blue Monkey's Chest</title>
   <style>
     body {
       background: #f4f1e8;
@@ -21,7 +21,7 @@
       font-size: 1.2rem;
     }
     button {
-      margin-top: 2rem;
+      margin-top: 1rem;
       padding: 1rem 2rem;
       font-size: 1.1rem;
       border: none;
@@ -45,50 +45,88 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       display: none;
     }
+    input {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      font-size: 1.1rem;
+      width: 80%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-  <h1>Le Coffre du Singe Bleu</h1>
-  <p>Récite la formule magique pour ouvrir le coffre :</p>
-  <button onclick="startRecognition()">Prononcer la formule</button>
-  <div id="status">En attente...</div>
+  <h1>The Blue Monkey's Chest</h1>
+  <p>Recite the magic formula to open the chest:</p>
+  <button onclick="startRecognition()">Speak the formula</button>
+  <p>Or type it below:</p>
+  <input type="text" id="textInput" placeholder="Enter the magic formula..." onkeydown="if(event.key === 'Enter') checkTextFormula()" />
+  <div id="status">Waiting...</div>
   <div id="chest">🔒</div>
-
-  <img id="singeImage" src="singe_bleu.png" alt="Singe Bleu" />
-
+  <img id="singeImage" src="singe_bleu.png" alt="Blue Monkey" />
   <script>
-    const magicWords = ["lumière", "apaisé", "soi", "sacré", "sombok"];
+    const magicWords = ["light", "calm", "self", "sacred", "sombok"];
+
+    function normalize(word) {
+      word = word.toLowerCase();
+      if (["some", "sum", "son"].includes(word)) return "sombok";
+      if (word === "book") return "";
+      if (word === "somebook") return "sombok";
+      return word;
+    }
 
     function startRecognition() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'fr-FR';
+      recognition.lang = 'en-US';
       recognition.interimResults = false;
 
       recognition.onstart = () => {
-        document.getElementById('status').textContent = "Parle maintenant...";
+        document.getElementById('status').textContent = "Speak now...";
       };
 
       recognition.onresult = (event) => {
-        const spoken = event.results[0][0].transcript.toLowerCase().trim();
-        const spokenWords = spoken.split(/\s+/);
-        const correct = magicWords.every(word => spokenWords.includes(word));
+        let spoken = event.results[0][0].transcript.toLowerCase().trim();
+        let spokenWords = spoken.split(/\s+/).map(normalize).filter(Boolean);
+
+        const correct = magicWords.every((word, index) => spokenWords[index] === word);
 
         if (correct) {
-          document.getElementById('status').textContent = "Formule reconnue. Le coffre s'ouvre !";
-          document.getElementById('chest').textContent = "🔓";
-          document.getElementById('singeImage').style.display = 'block';
+          openChest(spoken);
         } else {
-          document.getElementById('status').textContent = `Tu as dit : \"${spoken}\" → Ce n'est pas la bonne formule.`;
-          document.getElementById('chest').textContent = "🔒";
-          document.getElementById('singeImage').style.display = 'none';
+          closeChest(spoken);
         }
       };
 
       recognition.onerror = (event) => {
-        document.getElementById('status').textContent = `Erreur : ${event.error}`;
+        document.getElementById('status').textContent = `Error: ${event.error}`;
       };
 
       recognition.start();
+    }
+
+    function checkTextFormula() {
+      const input = document.getElementById("textInput").value.toLowerCase().trim();
+      const typedWords = input.split(/\s+/).map(normalize).filter(Boolean);
+      const correct = magicWords.every((word, index) => typedWords[index] === word);
+
+      if (correct) {
+        openChest(input);
+      } else {
+        closeChest(input);
+      }
+    }
+
+    function openChest(words) {
+      document.getElementById('status').textContent = "Correct formula. The chest opens!";
+      document.getElementById('chest').textContent = "🔓";
+      document.getElementById('singeImage').style.display = 'block';
+    }
+
+    function closeChest(words) {
+      document.getElementById('status').textContent = `You said: "${words}" → Incorrect formula.`;
+      document.getElementById('chest').textContent = "🔒";
+      document.getElementById('singeImage').style.display = 'none';
     }
   </script>
 </body>
