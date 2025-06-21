@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Blue Monkey's Chest</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffre du Singe Bleu</title>
   <style>
     body {
       background: #f4f1e8;
@@ -45,83 +45,51 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       display: none;
     }
-    #manualInput {
-      margin-top: 2rem;
-      display: block;
-    }
   </style>
 </head>
 <body>
-  <h1>Blue Monkey's Chest</h1>
-  <p>Recite or write the magic formula to open the chest:</p>
-  <button onclick="startRecognition()">Speak the formula</button>
-
-  <div id="manualInput">
-    <input type="text" id="textInput" placeholder="Type the magic formula" style="padding: 0.5rem; font-size: 1rem;" />
-    <button onclick="checkTypedFormula()">Submit</button>
-  </div>
-
-  <div id="status">Waiting...</div>
+  <h1>Le Coffre du Singe Bleu</h1>
+  <p>Récite la formule magique pour ouvrir le coffre :</p>
+  <button onclick="startRecognition()">Prononcer la formule</button>
+  <div id="status">En attente...</div>
   <div id="chest">🔒</div>
 
-  <img id="singeImage" src="singe_bleu.png?v=3" alt="Blue Monkey" />
-
-  <audio autoplay loop>
-    <source src="blue_monkey_background.mp3?v=3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+  <img id="singeImage" src="singe_bleu.png" alt="Singe Bleu" />
 
   <script>
-    const magicWords = ["light", "calm", "self", "sacred", "sombok"];
-    function normalize(input) {
-      return input.toLowerCase().trim().split(/\s+/);
-    }
-
-    function checkMagic(words) {
-      return magicWords.every((word, i) => words[i] === word);
-    }
-
-    function showSuccess() {
-      document.getElementById('status').textContent = "Correct formula! The chest opens!";
-      document.getElementById('chest').textContent = "🔓";
-      document.getElementById('singeImage').style.display = 'block';
-    }
-
-    function showFailure(spoken) {
-      document.getElementById('status').textContent = `You said: "${spoken}" → This is not the correct formula.`;
-      document.getElementById('chest').textContent = "🔒";
-      document.getElementById('singeImage').style.display = 'none';
-    }
+    const magicWords = ["lumière", "apaisé", "soi", "sacré", "sombok"];
 
     function startRecognition() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'en-US';
+      recognition.lang = 'fr-FR';
       recognition.interimResults = false;
 
       recognition.onstart = () => {
-        document.getElementById('status').textContent = "Listening...";
+        document.getElementById('status').textContent = "Parle maintenant...";
       };
 
       recognition.onresult = (event) => {
-        const spoken = event.results[0][0].transcript;
-        const words = normalize(spoken);
-        checkMagic(words) ? showSuccess() : showFailure(spoken);
+        const spoken = event.results[0][0].transcript.toLowerCase().trim();
+        const spokenWords = spoken.split(/\s+/);
+        const correct = magicWords.every(word => spokenWords.includes(word));
+
+        if (correct) {
+          document.getElementById('status').textContent = "Formule reconnue. Le coffre s'ouvre !";
+          document.getElementById('chest').textContent = "🔓";
+          document.getElementById('singeImage').style.display = 'block';
+        } else {
+          document.getElementById('status').textContent = `Tu as dit : \"${spoken}\" → Ce n'est pas la bonne formule.`;
+          document.getElementById('chest').textContent = "🔒";
+          document.getElementById('singeImage').style.display = 'none';
+        }
       };
 
       recognition.onerror = (event) => {
-        document.getElementById('status').textContent = `Error: ${event.error}`;
+        document.getElementById('status').textContent = `Erreur : ${event.error}`;
       };
 
       recognition.start();
     }
-
-    function checkTypedFormula() {
-      const typed = document.getElementById('textInput').value;
-      const words = normalize(typed);
-      checkMagic(words) ? showSuccess() : showFailure(typed);
-    }
   </script>
 </body>
 </html>
-
-
